@@ -14,7 +14,8 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala).
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       "org.splink" %% "pagelets" % "0.0.1",
       "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
-      "org.webjars" % "bootstrap" % "3.3.4"
+      "org.webjars.bower" % "bootstrap-less-only" % "3.3.6",
+      "org.webjars" % "jquery" % "3.1.1"
     )
   )
 
