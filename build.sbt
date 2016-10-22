@@ -11,10 +11,9 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala).
     libraryDependencies ++= Seq(
       cache,
       ws,
-      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       "org.splink" %% "pagelets" % "0.0.1",
       "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
-      "org.webjars.bower" % "bootstrap-less-only" % "3.3.6",
+      "org.webjars.bower" % "bootstrap" % "3.3.7",
       "org.webjars" % "jquery" % "3.1.1"
     )
   )
@@ -22,8 +21,14 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala).
 LessKeys.compress in Assets := true
 LessKeys.optimization in Assets := 100
 
-includeFilter in (Assets, LessKeys.less) := "*.less"
-excludeFilter in (Assets, LessKeys.less) := "_*.less"
-pipelineStages in Assets := Seq(uglify)
+includeFilter in uglify := GlobFilter("*.js")
+// also minify the bootstrap javascript files
+excludeFilter in uglify := new SimpleFileFilter(f =>
+  !f.getPath.contains("lib/bootstrap/js") &&
+    !f.getPath.contains("assets/javascripts"))
 
+includeFilter in(Assets, LessKeys.less) := "*.less"
+excludeFilter in(Assets, LessKeys.less) := "_*.less"
+
+pipelineStages in Assets := Seq(uglify)
 
