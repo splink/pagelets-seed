@@ -21,9 +21,7 @@
         }
     </head>
     <body>
-        <div class="container">
-            @Html(page.body)
-        </div>
+        @Html(page.body)
 
         @page.js.map { js =>
             <script src='@{resourceRoute(js.toString).url}'></script>
