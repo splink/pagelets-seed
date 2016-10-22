@@ -10,8 +10,6 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import views.html.{error, wrapper}
 
-import scala.concurrent.Future
-
 @Singleton
 class HomeController @Inject()(c: PageletController)(implicit m: Materializer, e: Environment) extends Controller {
   val log = play.api.Logger(getClass).logger
@@ -21,18 +19,21 @@ class HomeController @Inject()(c: PageletController)(implicit m: Materializer, e
   def tree(r: RequestHeader) = {
     val tree = Tree('root, Seq(
       Tree('header, Seq(
-        Leaf('navigation, navigation _).withFallback(navigationFallback _)
+        Leaf('navigation, navigation _)
       )),
       Tree('content, Seq(
         Leaf('carousel, carousel _),
-        Tree('texts, Seq(
-          Leaf('textA, text("A") _),
-          Leaf('textB, text("B") _)
-        ), results => combine(results)(views.html.pagelets.sixsix.apply))
+        Leaf('text, text _),
+        Tree('teasers, Seq(
+          Leaf('teaserA, teaser("A") _),
+          Leaf('teaserB, teaser("B") _),
+          Leaf('teaserC, teaser("C") _),
+          Leaf('teaserD, teaser("D") _)
+        ), results => combine(results)(views.html.pagelets.teasers.apply))
       )),
       Leaf('footer, footer _)
-    ), results => combine(results)(views.html.sections.apply))
-    tree/*.replace('brick2, Leaf('yo, yo _))*/
+    ), results => combine(results)(views.html.pagelets.sections.apply))
+    tree
   }
 
   val mainTemplate = wrapper(routes.HomeController.resourceFor) _
@@ -49,31 +50,28 @@ class HomeController @Inject()(c: PageletController)(implicit m: Materializer, e
     mainTemplate(page)
   }
 
-  def navigation = Action.async { implicit request =>
-    Future {
-      Ok(views.html.navigation()).
-        withJavascript(Javascript("lib/bootstrap/js/collapse.js"))
-    }
+  def navigation = Action { implicit request =>
+    Ok(views.html.pagelets.navigation())
   }
 
   def carousel = Action { implicit request =>
     Ok(views.html.pagelets.carousel()).
       withJavascript(
         Javascript("lib/bootstrap/js/transition.min.js"),
-        Javascript("lib/bootstrap/js/carousel.js"))
+        Javascript("lib/bootstrap/js/carousel.min.js"))
   }
 
-  def text(typ: String)() = Action { implicit request =>
-    Ok(views.html.pagelets.text(typ))
+  def teaser(typ: String)() = Action { implicit request =>
+    Ok(views.html.pagelets.teaser(typ))
+  }
+
+  def text() = Action { implicit request =>
+    Ok(views.html.pagelets.text())
   }
 
   def footer = Action { implicit request =>
     Ok(views.html.pagelets.footer()).withCss(
       Css("stylesheets/footer.min.css")
     )
-  }
-
-  def navigationFallback = Action {
-    Ok("navigationFallback")
   }
 }
