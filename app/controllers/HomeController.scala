@@ -8,15 +8,23 @@ import org.splink.pagelets._
 import play.api.Environment
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.data._
+import play.api.data.Forms._
 import views.html.{error, wrapper}
 
 @Singleton
-class HomeController @Inject()(c: PageletController)(implicit m: Materializer, e: Environment) extends Controller {
+class HomeController @Inject()(c: PageletController)(
+  implicit m: Materializer, e: Environment, val messagesApi: MessagesApi) extends Controller with I18nSupport {
   val log = play.api.Logger(getClass).logger
 
   import c._
 
   def tree(r: RequestHeader) = {
+
+    //make the request implicitly available to the sections template
+    implicit val request: RequestHeader = r
+
     val tree = Tree('root, Seq(
       Tree('header, Seq(
         Leaf('navigation, navigation _)
@@ -33,7 +41,11 @@ class HomeController @Inject()(c: PageletController)(implicit m: Materializer, e
       )),
       Leaf('footer, footer _)
     ), results => combine(results)(views.html.pagelets.sections.apply))
-    tree
+
+    request2lang.language match {
+      case "de" => tree.skip('text)
+      case _ => tree
+    }
   }
 
   val mainTemplate = wrapper(routes.HomeController.resourceFor) _
@@ -42,8 +54,20 @@ class HomeController @Inject()(c: PageletController)(implicit m: Materializer, e
   def resourceFor(fingerprint: String) = ResourceAction(fingerprint)
 
   def index = PageAction(errorTemplate)("Index", tree) { (request, page) =>
-    log.info(visualize(tree(request)))
+    println(tree(request))
+    log.info("\n" + visualize(tree(request)))
     mainTemplate(page)
+  }
+
+  val langForm = Form(single("language" -> nonEmptyText))
+
+  def changeLanguage = Action { implicit request =>
+    langForm.bindFromRequest.fold(
+      errors => BadRequest,
+      lang => Redirect(routes.HomeController.index()).
+        withCookies(Cookie(messagesApi.langCookieName, lang)).
+        flashing(Flash(Map("success" -> s"Changed the language to $lang")))
+    )
   }
 
   def pagelet(id: Symbol) = PageletAction(errorTemplate)(tree, id) { (request, page) =>
@@ -51,7 +75,10 @@ class HomeController @Inject()(c: PageletController)(implicit m: Materializer, e
   }
 
   def navigation = Action { implicit request =>
-    Ok(views.html.pagelets.navigation())
+    Ok(views.html.pagelets.navigation()).
+      withJavascript(
+        Javascript("lib/bootstrap/js/dropdown.min.js"),
+        Javascript("lib/bootstrap/js/alert.min.js"))
   }
 
   def carousel = Action { implicit request =>
