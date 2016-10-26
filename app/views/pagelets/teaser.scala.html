@@ -1,16 +1,15 @@
-@(typ: String)
+@(teaser: Teaser)
 
 <div class="col-sm-6 col-md-3">
     <div class="thumbnail">
-        <img src="http://placehold.it/250x150" alt="teaser">
+
+        <img src="@teaser.image.src" alt="@teaser.image.alt"
+            width="@teaser.image.size.width"
+            height="@teaser.image.size.height">
+
         <div class="caption">
-            <h3>Thumbnail @typ</h3>
-            <p>
-                Lorem ipsum dolor sit amet adipiscing elit magna aliqua.
-            </p>
-            <p>
-                <a href="#" class="btn btn-default" role="button">Button</a>
-            </p>
+            <h3>@teaser.title</h3>
+            <p>@teaser.text</p>
         </div>
     </div>
 </div>

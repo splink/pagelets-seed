@@ -1,9 +1,21 @@
-@()
+@()(implicit messageFor: Messages)
 <footer class="footer">
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h4>Footer</h4>
+                <h3>@messageFor("pagelet.footer.title")</h3>
+                <ul class="list-unstyled">
+                    <li>
+                        <a href="https://github.com/splink/pagelets">
+                            https://github.com/splink/pagelets
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/splink/pagelets-seed">
+                            https://github.com/splink/pagelets-seed
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>

@@ -1,12 +1,27 @@
-@(page: org.splink.pagelets.ErrorPage)
+@(page: org.splink.pagelets.ErrorPage)(implicit messagesFor: Messages)
 
 <!DOCTYPE html>
 <html lang="@page.language">
     <head>
         <title>@page.title</title>
+        <link rel="stylesheet" media="screen" href='@routes.Assets.versioned("stylesheets/main.min.css")'>
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
     </head>
     <body>
-        <p>@page.exception.msg</p>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h1 class="panel-title">@messagesFor("error.title")</h1>
+                        </div>
+                        <div class="panel-body">
+                            <p class="lead">"@page.exception.getMessage"</p>
+                            @Html(page.exception.getStackTrace.mkString("<br>"))
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </body>
 </html>

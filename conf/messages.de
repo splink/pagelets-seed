@@ -1,2 +1,10 @@
 de=Deutsch
 en=English
+language.change.flash=Changed the language to {0}
+language=Sprache
+title=Pagelets Demo
+pagelet.carousel.previous=Zurück
+pagelet.carousel.next=Weiter
+pagelet.footer.title=Links
+metaTags.description=Dies ist eine Demonstration des Play-Framework Pagelets Moduls.
+error.title=Ein Fehler ist aufgetreten
