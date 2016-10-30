@@ -2,7 +2,7 @@ import sbt.Keys._
 
 name := """pagelets-seed"""
 
-version := "0.1-SNAPSHOT"
+version := "0.1"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala).
   settings(Seq(
@@ -13,6 +13,7 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala).
       ws,
       "org.splink" %% "pagelets" % "0.0.2-SNAPSHOT",
       "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
+      "org.mockito" % "mockito-core" % "1.10.19" % Test,
       "org.webjars.bower" % "bootstrap" % "3.3.7",
       "org.webjars" % "jquery" % "3.1.1"
     )

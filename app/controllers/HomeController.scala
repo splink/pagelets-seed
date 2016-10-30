@@ -5,7 +5,7 @@ import javax.inject._
 import akka.stream.Materializer
 import org.splink.pagelets.TwirlConversions._
 import org.splink.pagelets._
-import play.api.Environment
+import play.api.{Configuration, Environment}
 import play.api.data.Forms._
 import play.api.data._
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -15,13 +15,14 @@ import service.{CarouselService, TeaserService, TextblockService}
 import views.html.{error, wrapper}
 
 @Singleton
-class HomeController @Inject()(pagelets: PageletController,
+class HomeController @Inject()(pagelets: Pagelets,
                                teaserService: TeaserService,
                                carouselService: CarouselService,
                                textblockService: TextblockService)(
-                      implicit m: Materializer,
-                               e: Environment,
-                               val messagesApi: MessagesApi) extends Controller with I18nSupport {
+                                implicit m: Materializer,
+                                e: Environment,
+                                conf: Configuration,
+                                val messagesApi: MessagesApi) extends Controller with I18nSupport {
   val log = play.api.Logger(getClass).logger
 
   import pagelets._
@@ -57,7 +58,7 @@ class HomeController @Inject()(pagelets: PageletController,
 
   def resourceFor(fingerprint: String) = ResourceAction(fingerprint)
 
-  def index = PageAction(errorTemplate)("Index", tree) { (request, page) =>
+  def index = PageAction(errorTemplate)(Messages("title"), tree) { (request, page) =>
     log.info("\n" + visualize(tree(request)))
     mainTemplate(page)
   }
@@ -66,14 +67,18 @@ class HomeController @Inject()(pagelets: PageletController,
     mainTemplate(page)
   }
 
+  val supportedLanguages = conf.getStringSeq("play.i18n.langs").get
   val langForm = Form(single("language" -> nonEmptyText))
 
   def changeLanguage = Action { implicit request =>
     langForm.bindFromRequest.fold(
       errors => BadRequest,
-      lang => Redirect(routes.HomeController.index()).
-        withCookies(Cookie(messagesApi.langCookieName, lang)).
-        flashing(Flash(Map("success" -> Messages("language.change.flash", Messages(lang)))))
+      lang =>
+        if (supportedLanguages.contains(lang))
+          Redirect(routes.HomeController.index()).
+            withCookies(Cookie(messagesApi.langCookieName, lang)).
+            flashing(Flash(Map("success" -> Messages("language.change.flash", Messages(lang)))))
+        else BadRequest
     )
   }
 
