@@ -11,13 +11,12 @@ If any of the pagelets fail to render, the rest of the page is rendered regardle
 fallbacks. Failure of individual pagelets has no effect on the whole page.
 
 The demo application serves the purpose to
- - showcase the pagelet module and it's advantages
+ - showcase the Play Pagelets Module and it's advantages
  - demonstrate how to build a pagelet based application
  - serve as a template for pagelet based projects
 
 ## How?
-If you have a a [Lightbend activator](https://www.lightbend.com/community/core-tools/activator-and-sbt#overview) installation,
-just enter
+If you have [activator](https://www.lightbend.com/community/core-tools/activator-and-sbt#overview) installed, just enter:
 
 ~~~bash
 activator new play-pagelets
@@ -35,9 +34,9 @@ git clone git@github.com:splink/pagelets-seed.git
 cd pagelets-seed
 ~~~
 
-- assuming you have [sbt](http://www.scala-sbt.org/index.html) installed, enter
+- then enter
 ~~~bash
-sbt run
+activator run
 ~~~
 
 then point your browser to [http://localhost:9000](http://localhost:9000)
