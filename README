@@ -1,8 +1,9 @@
+[![Build Status](https://travis-ci.org/splink/pagelets-seed.svg?branch=master)](https://travis-ci.org/splink/pagelets-seed)
+
 # Hello Pagelets!
 
 ## What?
-This demo application shows how a modular and resilient web application can be built using the [Playframework 2](http://www.playframework.com) and the
-[Play pagelets module](https://github.com/splink/pagelets).
+This demo application shows how a modular and resilient web application can be built using the [Playframework 2](http://www.playframework.com) and the [Play Pagelets Module](https://github.com/splink/pagelets).
 
 The example is a simple multi-language website which is composed of multiple independent pagelets. Each pagelet
 obtains it's data, transforms it and eventually renders the data. The complete page is assembled from individual pagelets.
@@ -60,6 +61,3 @@ This is quite handy to conduct A/B tests or to serve a different page based on t
 concatenated and hashed as well as served with far future expiration dates. Therefore browsers need to make only few
 requests, and - as long as the assets haven't changed - can pull them from the local cache.
 - Separation of concerns: by embracing pagelets you automagically end up with a clean and flexible application design.
-
-
-
