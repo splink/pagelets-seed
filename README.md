@@ -20,7 +20,8 @@ The demo application serves the purpose to
 If you have [activator](https://www.lightbend.com/community/core-tools/activator-and-sbt#overview) installed, just enter:
 
 ~~~bash
-activator new play-pagelets
+activator new
+play-pagelets-seed
 ~~~
 
 Otherwise open a terminal and
@@ -32,7 +33,7 @@ git clone git@github.com:splink/pagelets-seed.git
 
 - then enter
 ~~~bash
-cd pagelets-seed
+cd play-pagelets-seed
 ~~~
 
 - then enter
