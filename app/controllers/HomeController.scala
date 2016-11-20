@@ -5,12 +5,12 @@ import javax.inject._
 import akka.stream.Materializer
 import org.splink.pagelets.TwirlConversions._
 import org.splink.pagelets._
-import play.api.{Configuration, Environment}
 import play.api.data.Forms._
 import play.api.data._
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
+import play.api.{Configuration, Environment}
 import service.{CarouselService, TeaserService, TextblockService}
 import views.html.{error, wrapper}
 
@@ -33,9 +33,19 @@ class HomeController @Inject()(pagelets: Pagelets,
     implicit val request: RequestHeader = r
 
     val tree = Tree('root, Seq(
-      Leaf('header, header _),
+      Leaf('header, header _).
+        withJavascript(
+          Javascript("lib/bootstrap/js/dropdown.min.js"),
+          Javascript("lib/bootstrap/js/alert.min.js")
+        ).withMetaTags(
+        MetaTag("description", Messages("metaTags.description"))
+      ),
       Tree('content, Seq(
-        Leaf('carousel, carousel _).withFallback(fallback("Carousel") _),
+        Leaf('carousel, carousel _).
+          withJavascript(
+            Javascript("lib/bootstrap/js/transition.min.js"),
+            Javascript("lib/bootstrap/js/carousel.min.js")).
+          withFallback(fallback("Carousel") _),
         Leaf('text, text _).withFallback(fallback("Text") _),
         Tree('teasers, Seq(
           Leaf('teaserA, teaser("A") _),
@@ -44,7 +54,9 @@ class HomeController @Inject()(pagelets: Pagelets,
           Leaf('teaserD, teaser("D") _)
         ), results => combine(results)(views.html.pagelets.teasers.apply))
       )),
-      Leaf('footer, footer _)
+      Leaf('footer, footer _).withCss(
+        Css("stylesheets/footer.min.css")
+      )
     ), results => combine(results)(views.html.pagelets.sections.apply))
 
     request2lang.language match {
@@ -76,28 +88,19 @@ class HomeController @Inject()(pagelets: Pagelets,
       lang =>
         if (supportedLanguages.contains(lang))
           Redirect(routes.HomeController.index()).
-            withCookies(Cookie(messagesApi.langCookieName, lang)).
+            withLang(Lang(lang)).
             flashing(Flash(Map("success" -> Messages("language.change.flash", Messages(lang)))))
         else BadRequest
     )
   }
 
   def header = Action { implicit request =>
-    Ok(views.html.pagelets.header()).
-      withJavascript(
-        Javascript("lib/bootstrap/js/dropdown.min.js"),
-        Javascript("lib/bootstrap/js/alert.min.js")
-      ).withMetaTags(
-      MetaTag("description", Messages("metaTags.description"))
-    )
+    Ok(views.html.pagelets.header())
   }
 
   def carousel = Action.async { implicit request =>
     carouselService.carousel.map { teasers =>
-      Ok(views.html.pagelets.carousel(teasers)).
-        withJavascript(
-          Javascript("lib/bootstrap/js/transition.min.js"),
-          Javascript("lib/bootstrap/js/carousel.min.js"))
+      Ok(views.html.pagelets.carousel(teasers))
     }
   }
 
@@ -116,9 +119,7 @@ class HomeController @Inject()(pagelets: Pagelets,
   }
 
   def footer = Action { implicit request =>
-    Ok(views.html.pagelets.footer()).withCss(
-      Css("stylesheets/footer.min.css")
-    )
+    Ok(views.html.pagelets.footer())
   }
 
   def fallback(name: String)() = Action {

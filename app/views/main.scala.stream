@@ -1,0 +1,16 @@
+@import scala.concurrent.ExecutionContext
+@import akka.stream.Materializer
+@import akka.stream.scaladsl.Source
+@(source: Source[String, _])(implicit m: Materializer, ec: ExecutionContext)
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>StreamTest</title>
+    </head>
+    <body>
+        @source.runReduce((acc, next) => acc + next).map { result =>
+          @result
+        }
+    </body>
+</html>

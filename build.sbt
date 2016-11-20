@@ -11,13 +11,16 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala).
     libraryDependencies ++= Seq(
       cache,
       ws,
-      "org.splink" %% "pagelets" % "0.0.2",
+      "org.splink" %% "pagelets" % "0.0.3-SNAPSHOT",
       "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
       "org.mockito" % "mockito-core" % "1.10.19" % Test,
       "org.webjars.bower" % "bootstrap" % "3.3.7",
       "org.webjars" % "jquery" % "3.1.1"
     )
   )
+
+TwirlKeys.templateFormats ++= Map("stream" -> "controllers.HtmlStreamFormat")
+TwirlKeys.templateImports ++= Vector("controllers.HtmlStream", "controllers.HtmlStreamFormat")
 
 LessKeys.compress in Assets := true
 LessKeys.optimization in Assets := 100
