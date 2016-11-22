@@ -1,0 +1,9 @@
+@import org.splink.pagelets.HtmlStream
+@(one: HtmlStream, two: HtmlStream, three: HtmlStream, four: HtmlStream)
+
+<div class="row">
+    @one
+    @two
+    @three
+    @four
+</div>

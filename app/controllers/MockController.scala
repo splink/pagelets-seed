@@ -2,17 +2,17 @@ package controllers
 
 import akka.actor.ActorSystem
 import com.google.inject.Inject
+import models.{Image, Size, Teaser}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json._
 import play.api.mvc.{Action, Controller, RequestHeader, Result}
-import models.{Image, Size, Teaser}
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
 class MockController @Inject()(system: ActorSystem) extends Controller {
 
-  def teaser(typ: String) = MockAction(delay = 0.millis) { implicit request =>
+  def teaser(typ: String) = MockAction(delay = 2000.millis) { implicit request =>
     Ok(Json.toJson(
       Teaser(
         translation.getOrElse(s"pagelet.${request2lang.language}", "...?") + typ,
@@ -23,7 +23,7 @@ class MockController @Inject()(system: ActorSystem) extends Controller {
     )).as(JSON)
   }
 
-  def carousel = MockAction(delay = 0.millis) { implicit request =>
+  def carousel = MockAction(delay = 800.millis) { implicit request =>
     Ok(
       Json.toJson(
         (1 to 3).map { count =>
@@ -38,7 +38,7 @@ class MockController @Inject()(system: ActorSystem) extends Controller {
     ).as(JSON)
   }
 
-  def textblock = MockAction(delay = 0.millis) { implicit request =>
+  def textblock = MockAction(delay = 1500.millis) { implicit request =>
     Ok(Json.toJson(
       Teaser(
         translation.getOrElse(s"pagelet.${request2lang.language}", "...?"),

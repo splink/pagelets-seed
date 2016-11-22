@@ -19,8 +19,8 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala).
     )
   )
 
-TwirlKeys.templateFormats ++= Map("stream" -> "controllers.HtmlStreamFormat")
-TwirlKeys.templateImports ++= Vector("controllers.HtmlStream", "controllers.HtmlStreamFormat")
+TwirlKeys.templateFormats ++= Map("stream" -> "org.splink.pagelets.HtmlStreamFormat")
+TwirlKeys.templateImports ++= Vector("org.splink.pagelets.HtmlStream", "org.splink.pagelets.HtmlStreamFormat")
 
 LessKeys.compress in Assets := true
 LessKeys.optimization in Assets := 100
@@ -35,4 +35,3 @@ includeFilter in(Assets, LessKeys.less) := "*.less"
 excludeFilter in(Assets, LessKeys.less) := "_*.less"
 
 pipelineStages in Assets := Seq(uglify)
-

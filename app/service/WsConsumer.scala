@@ -20,7 +20,7 @@ trait WsConsumer {
 class WsConsumerImpl @Inject()(ws: WSClient) extends WsConsumer {
   val log = Logger("WsConsumer")
 
-  override def fetch[T](url: String, timeout: FiniteDuration = 500.millis)(implicit r: Reads[T], lang: Lang) =
+  override def fetch[T](url: String, timeout: FiniteDuration = 5500.millis)(implicit r: Reads[T], lang: Lang) =
     ws.url(url).
       withCookies(Cookie("PLAY_LANG", lang.language)).
       withRequestTimeout(timeout).

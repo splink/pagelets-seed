@@ -4,10 +4,12 @@
 
 # Serve the complete home page
 GET         /                             controllers.HomeController.index
+GET         /stream                       controllers.HomeController.stream
 # Serve a single part of the pagelet tree. For instance http://localhost:9000/pagelet/carousel
 GET         /pagelet/:id                  controllers.HomeController.pagelet(id: Symbol)
 # Serve a resource (that is CSS or JavaScript) for a given fingerprint
 GET         /resource/:fingerprint        controllers.HomeController.resourceFor(fingerprint: String)
+GET         /error                        controllers.HomeController.errorPage
 
 POST        /changeLanguage               controllers.HomeController.changeLanguage()
 

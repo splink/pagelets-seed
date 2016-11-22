@@ -1,16 +1,14 @@
-@import scala.concurrent.ExecutionContext
-@import akka.stream.Materializer
-@import akka.stream.scaladsl.Source
-@(source: Source[String, _])(implicit m: Materializer, ec: ExecutionContext)
+@(s: org.splink.pagelets.HtmlStream)
 
 <!DOCTYPE html>
 <html>
     <head>
         <title>StreamTest</title>
+        <link rel="stylesheet" media="screen" href='@routes.Assets.versioned("stylesheets/main.min.css")'>
     </head>
     <body>
-        @source.runReduce((acc, next) => acc + next).map { result =>
-          @result
-        }
+        <div class="container">
+       @s
+       </div>
     </body>
 </html>
