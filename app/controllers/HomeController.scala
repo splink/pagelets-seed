@@ -5,7 +5,7 @@ import javax.inject._
 import akka.stream.Materializer
 import org.splink.pagelets.TwirlCombiners._
 import org.splink.pagelets._
-import org.splink.pagelets.HtmlStreamOps._
+  import org.splink.pagelets.HtmlStreamOps._
 import play.api.data.Forms._
 import play.api.data._
 import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
