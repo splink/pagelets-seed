@@ -1,4 +1,3 @@
-@import org.splink.pagelets.HtmlStream
 @(header: HtmlStream, body: HtmlStream, footer: HtmlStream)(implicit request: RequestHeader)
 
 @header

@@ -1,4 +1,4 @@
-@(resourceRoute: String => Call)(page: org.splink.pagelets.HtmlPageStream)
+@(resourceRoute: String => Call)(page: HtmlPageStream)
 
 <!DOCTYPE html>
 <html lang="@page.language">

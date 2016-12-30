@@ -19,8 +19,15 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala).
     )
   )
 
-TwirlKeys.templateFormats ++= Map("stream" -> "org.splink.pagelets.HtmlStreamFormat")
-TwirlKeys.templateImports ++= Vector("org.splink.pagelets.HtmlStream", "org.splink.pagelets.HtmlStreamFormat")
+TwirlKeys.templateFormats ++= Map(
+  "stream" -> "org.splink.pagelets.twirl.HtmlStreamFormat")
+
+TwirlKeys.templateImports ++= Vector(
+  "org.splink.pagelets.twirl.HtmlStream",
+  "org.splink.pagelets.twirl.HtmlStreamFormat",
+  "org.splink.pagelets.twirl.HtmlPageStream",
+  "org.splink.pagelets.Page")
+
 
 LessKeys.compress in Assets := true
 LessKeys.optimization in Assets := 100
