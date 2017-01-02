@@ -11,7 +11,7 @@ trait TeaserService {
   def teaser(typ: String)(implicit lang: Lang): Future[Teaser]
 }
 
-class TeaserServiceImpl @Inject()(ws: WsConsumer) extends TeaserService {
+class TeaserServiceImpl @Inject()(ws: WsConsumer) extends TeaserService with PlayPort {
   override def teaser(typ: String)(implicit lang: Lang) =
-    ws.fetch[Teaser](s"http://localhost:9000/mock/teaser/$typ")
+    ws.fetch[Teaser](s"http://localhost:$port/mock/teaser/$typ")
 }

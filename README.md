@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/splink/pagelets-seed.svg?branch=master)](https://travis-ci.org/splink/pagelets-seed)
 
 # Hello Pagelets!
-just a few minutes and you have a complete Play application based on Pagelets running.
+just a few minutes and you have a complete Play application based on the [Play Pagelets Module](https://github.com/splink/pagelets) running.
 
 ## TL;DR
 The demo application serves the purpose to

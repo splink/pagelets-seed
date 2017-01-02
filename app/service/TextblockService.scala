@@ -10,7 +10,7 @@ trait TextblockService {
   def text(implicit lang: Lang): Future[Teaser]
 }
 
-class TextblockServiceImpl @Inject()(ws: WsConsumer) extends TextblockService {
+class TextblockServiceImpl @Inject()(ws: WsConsumer) extends TextblockService with PlayPort {
   override def text(implicit lang: Lang) =
-    ws.fetch[Teaser](s"http://localhost:9000/mock/textblock")
+    ws.fetch[Teaser](s"http://localhost:$port/mock/textblock")
 }

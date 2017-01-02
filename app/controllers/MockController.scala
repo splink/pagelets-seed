@@ -10,27 +10,32 @@ import play.api.mvc.{Action, Controller, RequestHeader, Result}
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
+/**
+  * A controller to simulate remote services which supply the data for the page. In the real world, the
+  * data source might be some kind of micro-service or cms. To see, how Pagelets react to corrupt data
+  * or timeouts, you can change the delay for the individual actions or return broken json.
+  */
 class MockController @Inject()(system: ActorSystem) extends Controller {
 
-  def teaser(typ: String) = MockAction(delay = 2000.millis) { implicit request =>
+  def teaser(typ: String) = MockAction(delay = 60.millis) { implicit request =>
     Ok(Json.toJson(
       Teaser(
         translation.getOrElse(s"pagelet.${request2lang.language}", "...?") + typ,
         translation.getOrElse(s"teaser.text.${request2lang.language}", "...?"),
-        Image("http://placehold.it/250x150",
+        Image(img(250, 150),
           Size(250, 150),
           translation.getOrElse(s"placeholder.${request2lang.language}", "...?")))
     )).as(JSON)
   }
 
-  def carousel = MockAction(delay = 800.millis) { implicit request =>
+  def carousel = MockAction(delay = 150.millis) { implicit request =>
     Ok(
       Json.toJson(
         (1 to 3).map { count =>
           Teaser(
             translation.getOrElse(s"pagelet.${request2lang.language}", "...?") + count,
             translation.getOrElse(s"carousel.text.${request2lang.language}", "...?"),
-            Image("http://placehold.it/1170x450",
+            Image(img(1170, 450),
               Size(250, 150),
               translation.getOrElse(s"placeholder.${request2lang.language}", "...?")))
         }
@@ -38,16 +43,18 @@ class MockController @Inject()(system: ActorSystem) extends Controller {
     ).as(JSON)
   }
 
-  def textblock = MockAction(delay = 1500.millis) { implicit request =>
+  def textblock = MockAction(delay = 90.millis) { implicit request =>
     Ok(Json.toJson(
       Teaser(
         translation.getOrElse(s"pagelet.${request2lang.language}", "...?"),
         translation.getOrElse(s"textblock.text.${request2lang.language}", "...?"),
-        Image("http://placehold.it/1170x50",
+        Image(img(1170, 50),
           Size(1170, 50),
           translation.getOrElse(s"placeholder.${request2lang.language}", "...?")))
     )).as(JSON)
   }
+
+  def img(w:Int, h:Int)  = s"https://placeholdit.imgix.net/~text?txtsize=13&txt=$w%C3%97$h&w=$w&h=$h"
 
   def MockAction(delay: FiniteDuration)(f: RequestHeader => Result) = Action.async { request =>
     if (delay.lteq(0.millis)) Future.successful(f(request))

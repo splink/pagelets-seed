@@ -10,7 +10,7 @@ trait CarouselService {
   def carousel(implicit lang: Lang): Future[Seq[Teaser]]
 }
 
-class CarouselServiceImpl @Inject()(ws: WsConsumer) extends CarouselService {
+class CarouselServiceImpl @Inject()(ws: WsConsumer) extends CarouselService with PlayPort {
   override def carousel(implicit lang: Lang) =
-    ws.fetch[Seq[Teaser]](s"http://localhost:9000/mock/carousel")
+    ws.fetch[Seq[Teaser]](s"http://localhost:$port/mock/carousel")
 }

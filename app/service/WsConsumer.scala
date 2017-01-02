@@ -13,14 +13,20 @@ import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
+/**
+  * Consume Json data from a remote service and translate the Json to case classes.
+  *
+  * Note the timeout parameter which states that requests which take longer then
+  * 2 seconds are considered a failure.
+  */
 trait WsConsumer {
-  def fetch[T](url: String, timeout: FiniteDuration = 500.millis)(implicit r: Reads[T], lang: Lang): Future[T]
+  def fetch[T](url: String, timeout: FiniteDuration = 2.seconds)(implicit r: Reads[T], lang: Lang): Future[T]
 }
 
 class WsConsumerImpl @Inject()(ws: WSClient) extends WsConsumer {
   val log = Logger("WsConsumer")
 
-  override def fetch[T](url: String, timeout: FiniteDuration = 5500.millis)(implicit r: Reads[T], lang: Lang) =
+  override def fetch[T](url: String, timeout: FiniteDuration = 2.seconds)(implicit r: Reads[T], lang: Lang) =
     ws.url(url).
       withCookies(Cookie("PLAY_LANG", lang.language)).
       withRequestTimeout(timeout).

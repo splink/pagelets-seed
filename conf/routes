@@ -2,20 +2,30 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Serve the complete home page
+# Serve the home page in async mode
 GET         /                             controllers.HomeController.index
-GET         /stream                       controllers.HomeController.stream
+
 # Serve a single part of the pagelet tree. For instance http://localhost:9000/pagelet/carousel
 GET         /pagelet/:id                  controllers.HomeController.pagelet(id: Symbol)
+
 # Serve a resource (that is CSS or JavaScript) for a given fingerprint
 GET         /resource/:fingerprint        controllers.HomeController.resourceFor(fingerprint: String)
+
+# In case an unrecoverable error occurs
 GET         /error                        controllers.HomeController.errorPage
 
 POST        /changeLanguage               controllers.HomeController.changeLanguage()
 
+
+# Serve the home page in stream mode
+GET         /stream                       controllers.HomeStreamController.index
+GET         /stream-resource/:fingerprint controllers.HomeStreamController.resourceFor(fingerprint: String)
+POST        /stream-changeLanguage        controllers.HomeStreamController.changeLanguage()
+
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                 controllers.Assets.versioned(path="/public", file: Asset)
 
+# routes for the MockController which simulates remote services
 GET         /mock/carousel                controllers.MockController.carousel
 GET         /mock/teaser/:typ             controllers.MockController.teaser(typ: String)
 GET         /mock/textblock               controllers.MockController.textblock
