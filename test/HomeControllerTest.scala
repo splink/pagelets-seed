@@ -3,28 +3,40 @@ import models.{Image, Size, Teaser}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
+import org.scalatest.BeforeAndAfter
 import org.scalatestplus.play.{OneAppPerSuite, PlaySpec}
 import org.splink.pagelets.PageletsAssembly
 import play.api.Environment
 import play.api.i18n.{Lang, MessagesApi}
-import play.api.mvc.Cookie
+import play.api.mvc.{Call, Cookie}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import play.twirl.api.Html
 import service.{CarouselService, TeaserService, TextblockService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class HomeControllerTest extends PlaySpec with MockitoSugar with OneAppPerSuite {
+class HomeControllerTest extends PlaySpec with MockitoSugar with OneAppPerSuite with BeforeAndAfter {
   implicit lazy val mat = app.materializer
   implicit lazy val env = Environment.simple()
   implicit lazy val conf = app.configuration
   implicit lazy val msg = app.injector.instanceOf[MessagesApi]
 
   val pagelets = new PageletsAssembly()
-  val teaserService = mock[TeaserService]
-  val carouselService = mock[CarouselService]
-  val textblockService = mock[TextblockService]
+
+  var teaserService: TeaserService = _
+  var carouselService: CarouselService = _
+  var textblockService: TextblockService = _
+  var ctrl: HomeController = _
+
+  before {
+    teaserService = mock[TeaserService]
+    carouselService = mock[CarouselService]
+    textblockService = mock[TextblockService]
+
+    ctrl = new HomeController(pagelets, teaserService, carouselService, textblockService)
+  }
 
   val teaser = Future.successful {
     Teaser("title", "text", Image("http://image.png", Size(1, 1), "alt"))
@@ -32,13 +44,8 @@ class HomeControllerTest extends PlaySpec with MockitoSugar with OneAppPerSuite 
 
   val teasers = teaser.map(t => Seq(t))
 
-  val ctrl = new HomeController(
-    pagelets,
-    teaserService,
-    carouselService,
-    textblockService)
-
   "HomeController#index" should {
+
     "serve the german home page" in {
       val request = FakeRequest().withCookies(Cookie(msg.langCookieName, "de"))
 
@@ -47,6 +54,7 @@ class HomeControllerTest extends PlaySpec with MockitoSugar with OneAppPerSuite 
       when(textblockService.text(any[Lang])).thenReturn(teaser)
 
       val result = ctrl.index()(request)
+      contentAsString(result) must include("""carousel-control""")
       contentAsString(result) must include("""lang="de"""")
       status(result) must equal(OK)
     }
@@ -59,6 +67,7 @@ class HomeControllerTest extends PlaySpec with MockitoSugar with OneAppPerSuite 
       when(textblockService.text(any[Lang])).thenReturn(teaser)
 
       val result = ctrl.index()(request)
+      contentAsString(result) must include("""carousel-control""")
       contentAsString(result) must include("""lang="en"""")
       status(result) must equal(OK)
     }
@@ -68,24 +77,24 @@ class HomeControllerTest extends PlaySpec with MockitoSugar with OneAppPerSuite 
 
       when(teaserService.teaser(any[String])(any[Lang])).thenReturn(teaser)
       when(carouselService.carousel(any[Lang])).thenReturn(Future.failed(new RuntimeException("Carousel failure")))
-      when(textblockService.text(any[Lang])).thenReturn(Future.failed(new RuntimeException("Carousel failure")))
+      when(textblockService.text(any[Lang])).thenReturn(Future.failed(new RuntimeException("Text failure")))
 
       val result = ctrl.index()(request)
+      contentAsString(result) must include("""<h2>Fallback <small>Carousel""")
       contentAsString(result) must include("""lang="en"""")
-      contentAsString(result) must include("""Fallback""")
       status(result) must equal(OK)
     }
 
+    "redirect to an error page if an exception occurs within the index action" in {
+      when(teaserService.teaser(any[String])(any[Lang])).thenReturn(teaser)
+      when(carouselService.carousel(any[Lang])).thenReturn(teasers)
+      when(textblockService.text(any[Lang])).thenReturn(teaser)
 
-    "serve an error page if an exception occurs within the index action" in {
-      val ctrl = new HomeController(pagelets,
-        teaserService,
-        carouselService,
-        textblockService) {
+      val ctrl = new HomeController(pagelets, teaserService, carouselService, textblockService) {
 
         import pagelets._
 
-        override def index = PageAction(errorTemplate)("title", tree) { (request, page) =>
+        override def index = PageAction.async[Html](Call("GET", "/error"))("title", tree) { (request, page) =>
           throw new RuntimeException("error")
         }
       }
@@ -93,9 +102,7 @@ class HomeControllerTest extends PlaySpec with MockitoSugar with OneAppPerSuite 
       val request = FakeRequest().withCookies(Cookie(msg.langCookieName, "en"))
 
       val result = ctrl.index(request)
-      contentAsString(result) must include("""lang="en"""")
-      contentAsString(result) must include("""An error has occurred""")
-      status(result) must equal(INTERNAL_SERVER_ERROR)
+      status(result) must equal(TEMPORARY_REDIRECT)
     }
   }
 

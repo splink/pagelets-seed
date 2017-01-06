@@ -1,4 +1,4 @@
-@(resourceRoute: String => Call)(page: Page)
+@(resourceRoute: String => Call)(page: HtmlPageStream)
 
 <!DOCTYPE html>
 <html lang="@page.language">
@@ -16,12 +16,13 @@
         }
 
         <script src="@routes.Assets.versioned("lib/jquery/jquery.min.js")"></script>
+
         @page.head.js.map { js =>
-            <script src='@{resourceRoute(js.toString).url}'></script>
+            <script src='@{resourceRoute(js.toString).url}' />
         }
     </head>
     <body>
-        @Html(page.body)
+        @page.body
 
         @page.js.map { js =>
             <script src='@{resourceRoute(js.toString).url}'></script>
