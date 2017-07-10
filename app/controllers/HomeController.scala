@@ -2,24 +2,22 @@ package controllers
 
 import javax.inject._
 
+import akka.stream.Materializer
 import org.splink.pagelets._
 import org.splink.pagelets.twirl.TwirlCombiners._
-
-import play.api.{Configuration, Environment}
 import play.api.data.Forms._
 import play.api.data._
-import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, Lang, Messages}
 import play.api.mvc._
-
+import play.api.{Configuration, Environment}
 import service.{CarouselService, TeaserService, TextblockService}
 import views.html.{error, wrapper}
 
-import akka.stream.Materializer
 import scala.concurrent.ExecutionContext
 
 
 /**
-  * A controller which shows Pagelets in async mode,. Async mode renders everything on the server
+  * A controller which shows Pagelets in async mode. Async mode renders everything on the server
   * side before the complete page is actually sent to the client.
   */
 @Singleton
@@ -28,15 +26,17 @@ class HomeController @Inject()(pagelets: Pagelets,
                                carouselService: CarouselService,
                                textblockService: TextblockService)(
                                 implicit m: Materializer,
-                                ec: ExecutionContext,
                                 e: Environment,
-                                conf: Configuration,
-                                val messagesApi: MessagesApi) extends Controller with I18nSupport {
+                                conf: Configuration) extends InjectedController with I18nSupport {
   val log = play.api.Logger(getClass).logger
+
+  implicit lazy val executionContext = defaultExecutionContext
 
   import pagelets._
 
-  val supportedLanguages = conf.getStringSeq("play.i18n.langs").get
+  val supportedLanguages = conf.get[Seq[String]]("play.i18n.langs")
+
+  implicit def request2lang(implicit r: RequestHeader) = messagesApi.preferred(r).lang
 
   // the page configuration
   def tree(r: RequestHeader) = {
@@ -84,17 +84,17 @@ class HomeController @Inject()(pagelets: Pagelets,
     }
   }
 
-  val mainTemplate = wrapper(routes.HomeController.resourceFor) _
+  def mainTemplate(implicit r: RequestHeader) = wrapper(routes.HomeController.resourceFor) _
   val onError = routes.HomeController.errorPage()
 
   // action to send a combined resource (that is Javascript or Css) for a fingerprint
   def resourceFor(fingerprint: String) = ResourceAction(fingerprint)
 
   // the main Action which triggers the rendering of the page according to the tree
-  def index = PageAction.async(onError)(Messages("title"), tree) { (request, page) =>
+  def index = PageAction.async(onError)(implicit r => Messages("title"), tree) { (request, page) =>
     // uncomment to log a visualization of the tree
-    // log.info("\n" + visualize(tree(request)))
-    mainTemplate(page)
+    //log.info("\n" + visualize(tree(request)))
+    mainTemplate(request)(page)
   }
 
   // in case a mandatory pagelet produces an error, the user is redirected to the error page
@@ -106,8 +106,8 @@ class HomeController @Inject()(pagelets: Pagelets,
   }
 
   // render any part of the page tree. For instance just the footer, or the whole content
-  def pagelet(id: Symbol) = PageletAction.async(onError)(tree, id) { (_, page) =>
-    mainTemplate(page)
+  def pagelet(id: Symbol) = PageletAction.async(onError)(tree, id) { (request, page) =>
+    mainTemplate(request)(page)
   }
 
   val langForm = Form(single("language" -> nonEmptyText))

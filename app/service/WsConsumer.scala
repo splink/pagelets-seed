@@ -5,11 +5,10 @@ import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.i18n.Lang
 import play.api.libs.json.{JsError, JsSuccess, Json, Reads}
-import play.api.libs.ws.{WSRequest, WSClient}
+import play.api.libs.ws.{WSClient, WSRequest}
 import play.api.mvc.{Cookie, Cookies}
 
-import scala.concurrent.Future
-import play.api.libs.concurrent.Execution.Implicits._
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
@@ -20,13 +19,13 @@ import scala.util.control.NonFatal
   * 2 seconds are considered a failure.
   */
 trait WsConsumer {
-  def fetch[T](url: String, timeout: FiniteDuration = 2.seconds)(implicit r: Reads[T], lang: Lang): Future[T]
+  def fetch[T](url: String, timeout: FiniteDuration = 2.seconds)(implicit ec:ExecutionContext, r: Reads[T], lang: Lang): Future[T]
 }
 
 class WsConsumerImpl @Inject()(ws: WSClient) extends WsConsumer {
   val log = Logger("WsConsumer")
 
-  override def fetch[T](url: String, timeout: FiniteDuration = 2.seconds)(implicit r: Reads[T], lang: Lang) =
+  override def fetch[T](url: String, timeout: FiniteDuration = 2.seconds)(implicit ec:ExecutionContext, r: Reads[T], lang: Lang) =
     ws.url(url).
       withCookies(Cookie("PLAY_LANG", lang.language)).
       withRequestTimeout(timeout).
@@ -47,7 +46,7 @@ class WsConsumerImpl @Inject()(ws: WSClient) extends WsConsumer {
   implicit class WithCookiesOps(requestHolder: WSRequest) {
     def withCookies(cookies: Cookie*): WSRequest = {
       val encoded = Cookies.encodeSetCookieHeader(cookies.toSeq)
-      requestHolder.withHeaders(HeaderNames.COOKIE -> encoded)
+      requestHolder.withHttpHeaders(HeaderNames.COOKIE -> encoded)
     }
   }
 
