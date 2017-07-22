@@ -1,10 +1,11 @@
-@()(implicit messageFor: Messages)
+@()(implicit messageFor: Messages, r: RequestHeader)
 
 @whenDisabled(language: String) = {
    @if(messageFor.lang.language == language) {disabled} else {}
 }
 @changeLanguageForm(language: String) = {
     <form action="@routes.HomeController.changeLanguage()" method="post">
+        @helper.CSRF.formField
         <input type="hidden" name="language" value="@language">
         <button @whenDisabled(language) class="btn btn-link @whenDisabled(language)" type="submit">@messageFor(language)</button>
     </form>
@@ -12,12 +13,10 @@
 
 <nav class="navbar navbar-default">
     <div class="container">
-        <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
             <a class="navbar-brand" href="/">@messageFor("title")</a>
         </div>
 
-        <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
@@ -32,5 +31,5 @@
             </ul>
 
         </div>
-    </div><!-- /.container -->
+    </div>
 </nav>

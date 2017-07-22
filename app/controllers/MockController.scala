@@ -3,19 +3,20 @@ package controllers
 import akka.actor.ActorSystem
 import com.google.inject.Inject
 import models.{Image, Size, Teaser}
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json._
-import play.api.mvc.{Action, Controller, RequestHeader, Result}
+import play.api.mvc._
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
 /**
   * A controller to simulate remote services which supply the data for the page. In the real world, the
-  * data source might be some kind of micro-service or cms. To see, how Pagelets react to corrupt data
+  * data source might be some kind of micro-service or cms. To see how Pagelets react to corrupt data
   * or timeouts, you can change the delay for the individual actions or return broken json.
   */
-class MockController @Inject()(system: ActorSystem) extends Controller {
+class MockController @Inject()(system: ActorSystem) extends InjectedController {
+
+  def request2lang(implicit r: RequestHeader) = messagesApi.preferred(r).lang
 
   def teaser(typ: String) = MockAction(delay = 60.millis) { implicit request =>
     Ok(Json.toJson(
@@ -61,7 +62,7 @@ class MockController @Inject()(system: ActorSystem) extends Controller {
     else
       akka.pattern.after(delay, system.scheduler) {
         Future.successful(f(request))
-      }
+      }(controllerComponents.executionContext)
   }
 
   val translation = Map[String, String](

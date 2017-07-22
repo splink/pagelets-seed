@@ -7,7 +7,7 @@ import controllers.pagelets._
 import org.splink.pagelets._
 import org.splink.pagelets.twirl.HtmlStreamOps._
 import org.splink.pagelets.twirl.TwirlCombiners._
-import play.api.i18n.Messages
+import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc._
 import play.api.{Configuration, Environment}
 
@@ -32,9 +32,8 @@ class HomeStreamController @Inject()(pagelets: Pagelets,
                                      fallbackPagelet: FallbackPagelet,
                                      textPagelet: TextPagelet)(
                                 implicit m: Materializer,
-                                ec: ExecutionContext,
                                 e: Environment,
-                                conf: Configuration) extends Controller {
+                                conf: Configuration) extends InjectedController with I18nSupport {
   import carouselPagelet.carousel
   import fallbackPagelet.fallback
   import footerPagelet.footer
@@ -42,6 +41,8 @@ class HomeStreamController @Inject()(pagelets: Pagelets,
   import pagelets._
   import teaserPagelet.teaser
   import textPagelet.text
+
+  implicit lazy val executionContext = defaultExecutionContext
 
   def changeLanguage = headerPagelet.changeLanguage
 
@@ -78,7 +79,7 @@ class HomeStreamController @Inject()(pagelets: Pagelets,
     ), results =>
     combineStream(results)(views.stream.pagelets.sections.apply))
 
-    request2lang.language match {
+    messagesApi.preferred(r).lang.language match {
       case "de" => tree.skip('text)
       case _ => tree
     }
@@ -86,7 +87,7 @@ class HomeStreamController @Inject()(pagelets: Pagelets,
 
   def resourceFor(fingerprint: String) = ResourceAction(fingerprint)
 
-  def index = PageAction.stream(Messages("title"), tree) { (_, page) =>
-    views.stream.wrapper(routes.HomeStreamController.resourceFor)(page)
+  def index = PageAction.stream(implicit r => Messages("title"), tree) { (request, page) =>
+    views.stream.wrapper(routes.HomeStreamController.resourceFor)(page)(request2Messages(request))
   }
 }

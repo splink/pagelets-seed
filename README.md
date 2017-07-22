@@ -11,8 +11,8 @@ The demo application serves the purpose to
 
 
 ## What is a Pagelet
-A pagelet is a small independent unit. A pagelet can be served as a web page individually, but usually a pagelet is composed 
-with other pagelets into a page.
+A pagelet is a small independent unit which consists of view, controller action and optionally a service which obtains the data to be rendered. 
+Usually a web page is composed of multiple pagelets.
 
 
 ## The demo app
@@ -45,7 +45,7 @@ def tree(r: RequestHeader) =
 
 A main action to render a complete page
 ~~~scala
-def index = PageAction.async(routes.HomeController.errorPage)("Page Title", tree) { (request, page) =>
+def index = PageAction.async(routes.HomeController.errorPage)(_ => "Page Title", tree) { (request, page) =>
   views.html.wrapper(routes.HomeController.resourceFor)(page)
 }
 ~~~
