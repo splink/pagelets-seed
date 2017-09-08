@@ -3,6 +3,8 @@
 # Hello Pagelets!
 just a few minutes and you have a complete Play application based on the [Play Pagelets Module](https://github.com/splink/pagelets) running.
 
+See the app in action: [Pagelets on Heroku](https://pagelets.herokuapp.com/) 
+
 ## TL;DR
 The demo application serves the purpose to
  - showcase the Play Pagelets Module and it's advantages
