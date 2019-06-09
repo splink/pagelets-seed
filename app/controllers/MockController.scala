@@ -55,7 +55,9 @@ class MockController @Inject()(system: ActorSystem) extends InjectedController {
     )).as(JSON)
   }
 
-  def img(w:Int, h:Int)  = s"https://placeholdit.imgix.net/~text?txtsize=13&txt=$w%C3%97$h&w=$w&h=$h"
+
+
+  def img(w:Int, h:Int)  = s"https://via.placeholder.com/${w}x$h?text=${w}x$h"
 
   def MockAction(delay: FiniteDuration)(f: RequestHeader => Result) = Action.async { request =>
     if (delay.lteq(0.millis)) Future.successful(f(request))

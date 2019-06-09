@@ -6,12 +6,12 @@ version := "0.1"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala).
   settings(Seq(
-    scalaVersion := "2.12.2",
+    scalaVersion := "2.12.8",
     routesImport += "org.splink.pagelets.Binders._"),
     libraryDependencies ++= Seq(
       ws,
       guice,
-      "org.splink" %% "pagelets" % "0.0.7",
+      "org.splink" %% "pagelets" % "0.0.8",
       "org.scalatestplus.play" %% "scalatestplus-play" % "3.0.0" % Test,
       "org.mockito" % "mockito-core" % "1.10.19" % Test,
       "ch.qos.logback" % "logback-classic" % "1.1.7",

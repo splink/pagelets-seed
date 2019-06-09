@@ -4,6 +4,7 @@
 just a few minutes and you have a complete Play application based on the [Play Pagelets Module](https://github.com/splink/pagelets) running.
 
 See the app in action: [Pagelets on Heroku](https://pagelets.herokuapp.com/) 
+*note that it runs on a free dyno which takes a couple of seconds to wake up.
 
 ## TL;DR
 The demo application serves the purpose to
