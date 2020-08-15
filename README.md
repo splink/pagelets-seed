@@ -36,13 +36,13 @@ The demo also invites to to simulate failure by configuring remote services to t
 A page configuration
 ~~~scala
 def tree(r: RequestHeader) = 
-  Tree('root, Seq(
-    Leaf('header, header _).withJavascript(Javascript("lib/bootstrap/js/dropdown.min.js")),
-    Tree('content, Seq(
-      Leaf('carousel, carousel _).withFallback(fallback("Carousel") _),
-      Leaf('text, text _).withFallback(fallback("Text") _)
+  Tree(Symbol("root"), Seq(
+    Leaf(Symbol("header"), header _).withJavascript(Javascript("lib/bootstrap/js/dropdown.min.js")),
+    Tree(Symbol("content"), Seq(
+      Leaf(Symbol("carousel"), carousel _).withFallback(fallback("Carousel") _),
+      Leaf(Symbol("text"), text _).withFallback(fallback("Text") _)
     )),
-    Leaf('footer, footer _).withCss(Css("stylesheets/footer.min.css"))
+    Leaf(Symbol("footer"), footer _).withCss(Css("stylesheets/footer.min.css"))
   ))
 ~~~
 
