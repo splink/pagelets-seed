@@ -13,9 +13,6 @@ import play.api.{Configuration, Environment}
 import service.{CarouselService, TeaserService, TextblockService}
 import views.html.{error, wrapper}
 
-import scala.concurrent.ExecutionContext
-
-
 /**
   * A controller which shows Pagelets in async mode. Async mode renders everything on the server
   * side before the complete page is actually sent to the client.
@@ -43,8 +40,8 @@ class HomeController @Inject()(pagelets: Pagelets,
     //make the request implicitly available to the sections combiner template
     implicit val request: RequestHeader = r
 
-    val tree = Tree('home, Seq(
-      Leaf('header, header _).
+    val tree = Tree(Symbol("home"), Seq(
+      Leaf(Symbol("header"), header _).
         withJavascript(
           Javascript("lib/bootstrap/js/dropdown.min.js"),
           Javascript("lib/bootstrap/js/alert.min.js")
@@ -52,25 +49,25 @@ class HomeController @Inject()(pagelets: Pagelets,
         MetaTag("description", Messages("metaTags.description"))
         // the header is mandatory. If it fails, the user is redirected to an error page @see the index Action
       ).setMandatory(true),
-      Tree('content, Seq(
-        Leaf('carousel, carousel _).
+      Tree(Symbol("content"), Seq(
+        Leaf(Symbol("carousel"), carousel _).
           // the carousel pagelet depends on specific Javascripts
           withJavascript(
             Javascript("lib/bootstrap/js/transition.min.js"),
             Javascript("lib/bootstrap/js/carousel.min.js")).
           withFallback(fallback("Carousel") _),
         // if the text pagelet fails, the fallback pagelet is rendered, if no fallback is defined, the pagelet is left out
-        Leaf('text, text _).withFallback(fallback("Text") _),
-        Tree('teasers, Seq(
-          Leaf('teaserA, teaser("A") _),
-          Leaf('teaserB, teaser("B") _),
-          Leaf('teaserC, teaser("C") _),
-          Leaf('teaserD, teaser("D") _)
+        Leaf(Symbol("text"), text _).withFallback(fallback("Text") _),
+        Tree(Symbol("teasers"), Seq(
+          Leaf(Symbol("teaserA"), teaser("A") _),
+          Leaf(Symbol("teaserB"), teaser("B") _),
+          Leaf(Symbol("teaserC"), teaser("C") _),
+          Leaf(Symbol("teaserD"), teaser("D") _)
         ), results =>
           // the usage of a combine template, which allows to control how the child pagelets are put together
           combine(results)(views.html.pagelets.teasers.apply))
       )),
-      Leaf('footer, footer _).withCss(
+      Leaf(Symbol("footer"), footer _).withCss(
         // the footer pagelet depends on specific Javascripts
         Css("stylesheets/footer.min.css")
       )
@@ -79,7 +76,7 @@ class HomeController @Inject()(pagelets: Pagelets,
 
     // output a different for users who prefer to view the page in german
     request2lang.language match {
-      case "de" => tree.skip('text)
+      case "de" => tree.skip(Symbol("text"))
       case _ => tree
     }
   }

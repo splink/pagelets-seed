@@ -2,11 +2,11 @@ package service
 
 import com.google.inject.Inject
 import play.api.Logger
-import play.api.http.HeaderNames
+import play.api.http.{CookiesConfiguration, HeaderNames}
 import play.api.i18n.Lang
 import play.api.libs.json.{JsError, JsSuccess, Json, Reads}
 import play.api.libs.ws.{WSClient, WSRequest}
-import play.api.mvc.{Cookie, Cookies}
+import play.api.mvc.{Cookie, CookieHeaderEncoding, Cookies, DefaultCookieHeaderEncoding}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
@@ -22,8 +22,10 @@ trait WsConsumer {
   def fetch[T](url: String, timeout: FiniteDuration = 2.seconds)(implicit ec:ExecutionContext, r: Reads[T], lang: Lang): Future[T]
 }
 
-class WsConsumerImpl @Inject()(ws: WSClient) extends WsConsumer {
+class WsConsumerImpl @Inject()(ws: WSClient) extends WsConsumer with CookieHeaderEncoding {
   val log = Logger("WsConsumer")
+
+  override protected def config = CookiesConfiguration()
 
   override def fetch[T](url: String, timeout: FiniteDuration = 2.seconds)(implicit ec:ExecutionContext, r: Reads[T], lang: Lang) =
     ws.url(url).
@@ -45,7 +47,7 @@ class WsConsumerImpl @Inject()(ws: WSClient) extends WsConsumer {
 
   implicit class WithCookiesOps(requestHolder: WSRequest) {
     def withCookies(cookies: Cookie*): WSRequest = {
-      val encoded = Cookies.encodeSetCookieHeader(cookies.toSeq)
+      val encoded = encodeSetCookieHeader(cookies.toSeq)
       requestHolder.withHttpHeaders(HeaderNames.COOKIE -> encoded)
     }
   }

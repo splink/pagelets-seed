@@ -11,7 +11,6 @@ import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc._
 import play.api.{Configuration, Environment}
 
-import scala.concurrent.ExecutionContext
 
 /**
   * This controller is similar to the async HomeController with the difference, that the page is streamed
@@ -50,37 +49,37 @@ class HomeStreamController @Inject()(pagelets: Pagelets,
     //make the request implicitly available to the sections combiner template
     implicit val request: RequestHeader = r
 
-    val tree = Tree('home, Seq(
-      Leaf('header, header _).
+    val tree = Tree(Symbol("home"), Seq(
+      Leaf(Symbol("header"), header _).
         withJavascript(
           Javascript("lib/bootstrap/js/dropdown.min.js"),
           Javascript("lib/bootstrap/js/alert.min.js")
         ).withMetaTags(
         MetaTag("description", Messages("metaTags.description"))
       ),
-      Tree('content, Seq(
-        Leaf('carousel, carousel _).
+      Tree(Symbol("content"), Seq(
+        Leaf(Symbol("carousel"), carousel _).
           withJavascript(
             Javascript("lib/bootstrap/js/transition.min.js"),
             Javascript("lib/bootstrap/js/carousel.min.js")).
           withFallback(fallback("Carousel") _),
-        Leaf('text, text _).withFallback(fallback("Text") _),
-        Tree('teasers, Seq(
-          Leaf('teaserA, teaser("A") _),
-          Leaf('teaserB, teaser("B") _),
-          Leaf('teaserC, teaser("C") _),
-          Leaf('teaserD, teaser("D") _)
+        Leaf(Symbol("text"), text _).withFallback(fallback("Text") _),
+        Tree(Symbol("teasers"), Seq(
+          Leaf(Symbol("teaserA"), teaser("A") _),
+          Leaf(Symbol("teaserB"), teaser("B") _),
+          Leaf(Symbol("teaserC"), teaser("C") _),
+          Leaf(Symbol("teaserD"), teaser("D") _)
         ), results =>
         combineStream(results)(views.stream.pagelets.teasers.apply))
       )),
-      Leaf('footer, footer _).withCss(
+      Leaf(Symbol("footer"), footer _).withCss(
         Css("stylesheets/footer.min.css")
       )
     ), results =>
     combineStream(results)(views.stream.pagelets.sections.apply))
 
     messagesApi.preferred(r).lang.language match {
-      case "de" => tree.skip('text)
+      case "de" => tree.skip(Symbol("text"))
       case _ => tree
     }
   }
