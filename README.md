@@ -36,13 +36,13 @@ The demo also invites to to simulate failure by configuring remote services to t
 A page configuration
 ~~~scala
 def tree(r: RequestHeader) = 
-  Tree(Symbol("root"), Seq(
-    Leaf(Symbol("header"), header _).withJavascript(Javascript("lib/bootstrap/js/dropdown.min.js")),
-    Tree(Symbol("content"), Seq(
-      Leaf(Symbol("carousel"), carousel _).withFallback(fallback("Carousel") _),
-      Leaf(Symbol("text"), text _).withFallback(fallback("Text") _)
+  Tree("root".id, Seq(
+    Leaf("header".id, () => header).withJavascript(Javascript("lib/bootstrap/js/dropdown.min.js")),
+    Tree("content".id, Seq(
+      Leaf("carousel".id, () => carousel).withFallback(fallback("Carousel") _),
+      Leaf("text".id, () => text).withFallback(fallback("Text") _)
     )),
-    Leaf(Symbol("footer"), footer _).withCss(Css("stylesheets/footer.min.css"))
+    Leaf("footer".id, () => footer).withCss(Css("stylesheets/footer.min.css"))
   ))
 ~~~
 
@@ -70,16 +70,7 @@ def fallback(name: String)() = Action {
 ~~~
 
 ## Getting started
-If you have [activator](https://www.lightbend.com/community/core-tools/activator-and-sbt#overview) installed, just enter:
-
-~~~bash
-activator new
-play-pagelets-seed
-~~~
-
-Otherwise open a terminal and
-
-- clone the github repository with
+Open a terminal and clone the github repository with
 ~~~bash
 git clone git@github.com:splink/pagelets-seed.git
 ~~~

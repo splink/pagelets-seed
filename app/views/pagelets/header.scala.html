@@ -4,7 +4,7 @@
    @if(messageFor.lang.language == language) {disabled} else {}
 }
 @changeLanguageForm(language: String) = {
-    <form action="@routes.HomeController.changeLanguage()" method="post">
+    <form action="@routes.HomeController.changeLanguage" method="post">
         @helper.CSRF.formField
         <input type="hidden" name="language" value="@language">
         <button @whenDisabled(language) class="btn btn-link @whenDisabled(language)" type="submit">@messageFor(language)</button>

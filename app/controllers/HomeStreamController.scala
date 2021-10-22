@@ -11,7 +11,6 @@ import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc._
 import play.api.{Configuration, Environment}
 
-
 /**
   * This controller is similar to the async HomeController with the difference, that the page is streamed
   * to the client. The controller also shows how the actual pagelets can be kept separate from the
@@ -49,37 +48,37 @@ class HomeStreamController @Inject()(pagelets: Pagelets,
     //make the request implicitly available to the sections combiner template
     implicit val request: RequestHeader = r
 
-    val tree = Tree(Symbol("home"), Seq(
-      Leaf(Symbol("header"), header _).
+    val tree = Tree("home".id, Seq(
+      Leaf("header".id, () => header).
         withJavascript(
           Javascript("lib/bootstrap/js/dropdown.min.js"),
           Javascript("lib/bootstrap/js/alert.min.js")
         ).withMetaTags(
         MetaTag("description", Messages("metaTags.description"))
       ),
-      Tree(Symbol("content"), Seq(
-        Leaf(Symbol("carousel"), carousel _).
+      Tree("content".id, Seq(
+        Leaf("carousel".id, () => carousel).
           withJavascript(
             Javascript("lib/bootstrap/js/transition.min.js"),
             Javascript("lib/bootstrap/js/carousel.min.js")).
           withFallback(fallback("Carousel") _),
-        Leaf(Symbol("text"), text _).withFallback(fallback("Text") _),
-        Tree(Symbol("teasers"), Seq(
-          Leaf(Symbol("teaserA"), teaser("A") _),
-          Leaf(Symbol("teaserB"), teaser("B") _),
-          Leaf(Symbol("teaserC"), teaser("C") _),
-          Leaf(Symbol("teaserD"), teaser("D") _)
+        Leaf("text".id, () => text).withFallback(fallback("Text") _),
+        Tree("teasers".id, Seq(
+          Leaf("teaserA".id, teaser("A") _),
+          Leaf("teaserB".id, teaser("B") _),
+          Leaf("teaserC".id, teaser("C") _),
+          Leaf("teaserD".id, teaser("D") _)
         ), results =>
         combineStream(results)(views.stream.pagelets.teasers.apply))
       )),
-      Leaf(Symbol("footer"), footer _).withCss(
+      Leaf("footer".id, () => footer).withCss(
         Css("stylesheets/footer.min.css")
       )
     ), results =>
     combineStream(results)(views.stream.pagelets.sections.apply))
 
     messagesApi.preferred(r).lang.language match {
-      case "de" => tree.skip(Symbol("text"))
+      case "de" => tree.skip("text".id)
       case _ => tree
     }
   }

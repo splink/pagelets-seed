@@ -6,7 +6,7 @@
 GET         /                             controllers.HomeController.index
 
 # Serve a single part of the pagelet tree. For instance http://localhost:9000/pagelet/carousel
-GET         /pagelet/:id                  controllers.HomeController.pagelet(id: Symbol)
+GET         /pagelet/:id                  controllers.HomeController.pagelet(id: org.splink.pagelets.PageletId)
 
 # Serve a resource (that is CSS or JavaScript) for a given fingerprint
 GET         /resource/:fingerprint        controllers.HomeController.resourceFor(fingerprint: String)

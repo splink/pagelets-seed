@@ -40,8 +40,8 @@ class HomeController @Inject()(pagelets: Pagelets,
     //make the request implicitly available to the sections combiner template
     implicit val request: RequestHeader = r
 
-    val tree = Tree(Symbol("home"), Seq(
-      Leaf(Symbol("header"), header _).
+    val tree = Tree("home".id, Seq(
+      Leaf("header".id, () => header).
         withJavascript(
           Javascript("lib/bootstrap/js/dropdown.min.js"),
           Javascript("lib/bootstrap/js/alert.min.js")
@@ -49,25 +49,25 @@ class HomeController @Inject()(pagelets: Pagelets,
         MetaTag("description", Messages("metaTags.description"))
         // the header is mandatory. If it fails, the user is redirected to an error page @see the index Action
       ).setMandatory(true),
-      Tree(Symbol("content"), Seq(
-        Leaf(Symbol("carousel"), carousel _).
+      Tree("content".id, Seq(
+        Leaf("carousel".id, () => carousel).
           // the carousel pagelet depends on specific Javascripts
           withJavascript(
             Javascript("lib/bootstrap/js/transition.min.js"),
             Javascript("lib/bootstrap/js/carousel.min.js")).
           withFallback(fallback("Carousel") _),
         // if the text pagelet fails, the fallback pagelet is rendered, if no fallback is defined, the pagelet is left out
-        Leaf(Symbol("text"), text _).withFallback(fallback("Text") _),
-        Tree(Symbol("teasers"), Seq(
-          Leaf(Symbol("teaserA"), teaser("A") _),
-          Leaf(Symbol("teaserB"), teaser("B") _),
-          Leaf(Symbol("teaserC"), teaser("C") _),
-          Leaf(Symbol("teaserD"), teaser("D") _)
+        Leaf("text".id, () => text).withFallback(fallback("Text") _),
+        Tree("teasers".id, Seq(
+          Leaf("teaserA".id, teaser("A") _),
+          Leaf("teaserB".id, teaser("B") _),
+          Leaf("teaserC".id, teaser("C") _),
+          Leaf("teaserD".id, teaser("D") _)
         ), results =>
           // the usage of a combine template, which allows to control how the child pagelets are put together
           combine(results)(views.html.pagelets.teasers.apply))
       )),
-      Leaf(Symbol("footer"), footer _).withCss(
+      Leaf("footer".id, () => footer).withCss(
         // the footer pagelet depends on specific Javascripts
         Css("stylesheets/footer.min.css")
       )
@@ -76,13 +76,13 @@ class HomeController @Inject()(pagelets: Pagelets,
 
     // output a different for users who prefer to view the page in german
     request2lang.language match {
-      case "de" => tree.skip(Symbol("text"))
+      case "de" => tree.skip("text".id)
       case _ => tree
     }
   }
 
   def mainTemplate(implicit r: RequestHeader) = wrapper(routes.HomeController.resourceFor) _
-  val onError = routes.HomeController.errorPage()
+  val onError = routes.HomeController.errorPage
 
   // action to send a combined resource (that is Javascript or Css) for a fingerprint
   def resourceFor(fingerprint: String) = ResourceAction(fingerprint)
@@ -103,16 +103,16 @@ class HomeController @Inject()(pagelets: Pagelets,
   }
 
   // render any part of the page tree. For instance just the footer, or the whole content
-  def pagelet(id: Symbol) = PageletAction.async(onError)(tree, id) { (request, page) =>
+  def pagelet(id: PageletId) = PageletAction.async(onError)(tree, id) { (request, page) =>
     mainTemplate(request)(page)
   }
 
   val langForm = Form(single("language" -> nonEmptyText))
 
   def changeLanguage = Action { implicit request =>
-    val target = request.headers.get(REFERER).getOrElse(routes.HomeController.index().path)
+    val target = request.headers.get(REFERER).getOrElse(routes.HomeController.index.path)
 
-    langForm.bindFromRequest.fold(
+    langForm.bindFromRequest().fold(
       _ => BadRequest,
       lang =>
         if (supportedLanguages.contains(lang))

@@ -39,7 +39,7 @@ class HeaderPagelet @Inject()(conf: Configuration) extends InjectedController wi
   def changeLanguage = Action { implicit request =>
     val target = request.headers.get(REFERER).getOrElse("/stream")
 
-    langForm.bindFromRequest.fold(
+    langForm.bindFromRequest().fold(
       _ => BadRequest,
       lang =>
         if (supportedLanguages.contains(lang))

@@ -1,12 +1,10 @@
 import controllers.HomeController
 import models.{Image, Size, Teaser}
-import org.mockito.Matchers._
-import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
+import org.mockito.scalatest.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.scalatestplus.play.PlaySpec
-import org.scalamock.scalatest.MockFactory
-import org.splink.pagelets.PageletsAssembly
+import org.splink.pagelets.{PageletId, PageletsAssembly}
 import play.api.Environment
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.{Call, ControllerComponents, Cookie}
@@ -18,7 +16,7 @@ import service.{CarouselService, TeaserService, TextblockService}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class HomeControllerTest extends PlaySpec with MockFactory with GuiceOneAppPerSuite with BeforeAndAfter {
+class HomeControllerTest extends PlaySpec with MockitoSugar with GuiceOneAppPerSuite with BeforeAndAfter {
   implicit lazy val mat = app.materializer
   implicit lazy val env = Environment.simple()
   implicit lazy val conf = app.configuration
@@ -57,9 +55,9 @@ class HomeControllerTest extends PlaySpec with MockFactory with GuiceOneAppPerSu
     "serve the german home page" in {
       val request = FakeRequest().withCookies(Cookie(msg.langCookieName, "de")).withCSRFToken
 
-      (teaserService.teaser( _: String)(_: Lang, _: ExecutionContext)).expects(*, *, *).
-        returning(teaser).anyNumberOfTimes()
-      (carouselService.carousel(_: Lang, _: ExecutionContext)).expects(*, *).returning(teasers)
+      when(teaserService.teaser(any[String])(any[Lang], any[ExecutionContext])).thenReturn(teaser)
+      when(carouselService.carousel(any[Lang], any[ExecutionContext])).thenReturn(teasers)
+      when(textblockService.text(any[Lang], any[ExecutionContext])).thenReturn(teaser)
 
       val result = ctrl.index()(request)
       contentAsString(result) must include("""carousel-control""")
@@ -70,10 +68,9 @@ class HomeControllerTest extends PlaySpec with MockFactory with GuiceOneAppPerSu
     "serve the english home page" in {
       val request = FakeRequest().withCookies(Cookie(msg.langCookieName, "en")).withCSRFToken
 
-      (teaserService.teaser( _: String)(_: Lang, _: ExecutionContext)).expects(*, *, *).
-        returning(teaser).anyNumberOfTimes()
-      (carouselService.carousel(_: Lang, _: ExecutionContext)).expects(*, *).returning(teasers)
-      (textblockService.text(_: Lang, _: ExecutionContext)).expects(*, *).returning(teaser)
+      when(teaserService.teaser(any[String])(any[Lang], any[ExecutionContext])).thenReturn(teaser)
+      when(carouselService.carousel(any[Lang], any[ExecutionContext])).thenReturn(teasers)
+      when(textblockService.text(any[Lang], any[ExecutionContext])).thenReturn(teaser)
 
       val result = ctrl.index()(request)
       contentAsString(result) must include("""carousel-control""")
@@ -84,10 +81,9 @@ class HomeControllerTest extends PlaySpec with MockFactory with GuiceOneAppPerSu
     "serve the home page, even if some pagelets fail" in {
       val request = FakeRequest().withCookies(Cookie(msg.langCookieName, "en")).withCSRFToken
 
-      (teaserService.teaser( _: String)(_: Lang, _: ExecutionContext)).expects(*, *, *).
-        returning(teaser).anyNumberOfTimes()
-      (carouselService.carousel(_: Lang, _: ExecutionContext)).expects(*, *).returning(Future.failed(new RuntimeException("Carousel failure")))
-      (textblockService.text(_: Lang, _: ExecutionContext)).expects(*, *).returning(Future.failed(new RuntimeException("Text failure")))
+      when(teaserService.teaser(any[String])(any[Lang], any[ExecutionContext])).thenReturn(teaser)
+      when(carouselService.carousel(any[Lang], any[ExecutionContext])).thenReturn(Future.failed(new RuntimeException("Carousel failure")))
+      when(textblockService.text(any[Lang], any[ExecutionContext])).thenReturn(Future.failed(new RuntimeException("Text failure")))
 
       val result = ctrl.index()(request)
       contentAsString(result) must include("""<h2>Fallback <small>Carousel""")
@@ -96,10 +92,9 @@ class HomeControllerTest extends PlaySpec with MockFactory with GuiceOneAppPerSu
     }
 
     "redirect to an error page if an exception occurs within the index action" in {
-      (teaserService.teaser( _: String)(_: Lang, _: ExecutionContext)).expects(*, *, *).
-        returning(teaser).anyNumberOfTimes()
-      (carouselService.carousel(_: Lang, _: ExecutionContext)).expects(*, *).returning(teasers)
-      (textblockService.text(_: Lang, _: ExecutionContext)).expects(*, *).returning(teaser)
+      when(teaserService.teaser(any[String])(any[Lang], any[ExecutionContext])).thenReturn(teaser)
+      when(carouselService.carousel(any[Lang], any[ExecutionContext])).thenReturn(teasers)
+      when(textblockService.text(any[Lang], any[ExecutionContext])).thenReturn(teaser)
 
       val ctrl = new HomeController(pagelets, teaserService, carouselService, textblockService) {
         import pagelets._
@@ -122,9 +117,9 @@ class HomeControllerTest extends PlaySpec with MockFactory with GuiceOneAppPerSu
     "serve the carousel pagelet in german" in {
       val request = FakeRequest().withCookies(Cookie(msg.langCookieName, "de")).withCSRFToken
 
-      (carouselService.carousel(_: Lang, _: ExecutionContext)).expects(*, *).returning(teasers)
+      when(carouselService.carousel(any[Lang], any[ExecutionContext])).thenReturn(teasers)
 
-      val result = ctrl.pagelet(Symbol("carousel"))(request)
+      val result = ctrl.pagelet(PageletId("carousel"))(request)
       contentAsString(result) must include("""lang="de"""")
       contentAsString(result) must include("""carousel""")
       status(result) must equal(OK)
@@ -133,9 +128,9 @@ class HomeControllerTest extends PlaySpec with MockFactory with GuiceOneAppPerSu
     "serve the carousel pagelet in english" in {
       val request = FakeRequest().withCookies(Cookie(msg.langCookieName, "en")).withCSRFToken
 
-      (carouselService.carousel(_: Lang, _: ExecutionContext)).expects(*, *).returning(teasers)
+      when(carouselService.carousel(any[Lang], any[ExecutionContext])).thenReturn(teasers)
 
-      val result = ctrl.pagelet(Symbol("carousel"))(request)
+      val result = ctrl.pagelet(PageletId("carousel"))(request)
       contentAsString(result) must include("""lang="en"""")
       contentAsString(result) must include("""carousel""")
       status(result) must equal(OK)
@@ -144,10 +139,9 @@ class HomeControllerTest extends PlaySpec with MockFactory with GuiceOneAppPerSu
     "serve the fallback for the carousel pagelet if it fails" in {
       val request = FakeRequest().withCookies(Cookie(msg.langCookieName, "en")).withCSRFToken
 
-      (carouselService.carousel(_: Lang, _: ExecutionContext)).expects(*, *).
-        returning(Future.failed(new RuntimeException("Carousel failure")))
+      when(carouselService.carousel(any[Lang], any[ExecutionContext])).thenReturn(Future.failed(new RuntimeException("Carousel failure")))
 
-      val result = ctrl.pagelet(Symbol("carousel"))(request)
+      val result = ctrl.pagelet(PageletId("carousel"))(request)
       contentAsString(result) must include("""lang="en"""")
       contentAsString(result) must include("""Fallback""")
       status(result) must equal(OK)
